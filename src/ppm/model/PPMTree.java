@@ -54,7 +54,7 @@ public class PPMTree {
                  * (o que indica que ele já foi encontrado antes dentro deste contexto),
                  * então incrementa a sua frequência.
                  **/
-                if (searchLevel == maxLevel)
+                if (searchLevel == maxLevel-1)
                     searchNode.incrementFrequency();
             }else{
                 searchNode.addChild(symbols[searchLevel]);

@@ -56,7 +56,7 @@ public class PPMNode {
         for (int i = 0; i < context; i++)
             description += "\t"; // Realiza uma indentação por contexto
 
-        description += "context: " + context + " - Symbol: [" + this.getSymbol() + "] - Frequency: " + frequency + "\n";
+        description += "context: " + context + " - Symbol: [" + this.symbol + "] - Frequency: " + this.frequency + "\n";
 
         for (PPMNode child : children)
             description += child.printNode(context+1);
