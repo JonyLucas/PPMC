@@ -29,28 +29,28 @@ import java.io.InputStream;
  */
 public class ArithmeticCompress {
 	
-	public static void main(String[] args) throws IOException {
-		// Handle command line arguments
-		if (args.length != 2) {
-			System.err.println("Usage: java ArithmeticCompress InputFile OutputFile");
-			System.exit(1);
-			return;
-		}
-		File inputFile  = new File(args[0]);
-		File outputFile = new File(args[1]);
-		
-		// Read input file once to compute symbol frequencies
-		FrequencyTable freqs = getFrequencies(inputFile);
-		freqs.increment(256);  // EOF symbol gets a frequency of 1
-		
-		// Read input file again, compress with arithmetic coding, and write output file
-		try (InputStream in = new BufferedInputStream(new FileInputStream(inputFile));
-				BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
-			writeFrequencies(out, freqs);
-			compress(freqs, in, out);
-		}
-	}
-	
+//	public static void main(String[] args) throws IOException {
+//		// Handle command line arguments
+//		if (args.length != 2) {
+//			System.err.println("Usage: java ArithmeticCompress InputFile OutputFile");
+//			System.exit(1);
+//			return;
+//		}
+//		File inputFile  = new File(args[0]);
+//		File outputFile = new File(args[1]);
+//
+//		// Read input file once to compute symbol frequencies
+//		FrequencyTable freqs = getFrequencies(inputFile);
+//		freqs.increment(256);  // EOF symbol gets a frequency of 1
+//
+//		// Read input file again, compress with arithmetic coding, and write output file
+//		try (InputStream in = new BufferedInputStream(new FileInputStream(inputFile));
+//				BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
+//			writeFrequencies(out, freqs);
+//			compress(freqs, in, out);
+//		}
+//	}
+
 	
 	// Returns a frequency table based on the bytes in the given file.
 	// Also contains an extra entry for symbol 256, whose frequency is set to 0.
