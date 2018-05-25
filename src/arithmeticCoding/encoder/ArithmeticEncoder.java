@@ -6,7 +6,10 @@
  * https://github.com/nayuki/Reference-arithmetic-coding
  */
 
-package arithmeticCoding;
+package arithmeticCoding.encoder;
+import arithmeticCoding.ArithmeticCoderBase;
+import arithmeticCoding.tables.CheckedFrequencyTable;
+import arithmeticCoding.tables.FrequencyTable;
 import infra.BitOutputStream;
 
 import java.io.IOException;

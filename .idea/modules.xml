@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PPMCCompressor.iml" filepath="$PROJECT_DIR$/PPMCCompressor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PPMC.iml" filepath="$PROJECT_DIR$/PPMC.iml" />
     </modules>
   </component>
 </project>

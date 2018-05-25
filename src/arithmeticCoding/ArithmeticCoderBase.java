@@ -7,12 +7,18 @@
  */
 
 package arithmeticCoding;
+
+import arithmeticCoding.decoder.ArithmeticDecoder;
+import arithmeticCoding.encoder.ArithmeticEncoder;
+import arithmeticCoding.tables.CheckedFrequencyTable;
+
 import java.io.IOException;
 
 
 /**
  * Provides the state and behaviors that arithmetic coding encoders and decoders share.
  * @see ArithmeticEncoder
+ * @see ArithmeticDecoder
  */
 public abstract class ArithmeticCoderBase {
 	

@@ -5,7 +5,7 @@
  * https://www.nayuki.io/page/reference-arithmetic-coding
  * https://github.com/nayuki/Reference-arithmetic-coding
  */
-package arithmeticCoding;
+package arithmeticCoding.tables;
 
 import java.util.Objects;
 

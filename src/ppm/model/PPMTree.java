@@ -22,7 +22,6 @@ public class PPMTree {
      */
     public void findByContext(int[] contextMessage){
         int msgSize = contextMessage.length; // O comprimento da mensagem.
-        PPMNode currentNode;
 
         for(int i = 0; i < msgSize; i++){
             searchAndAdd(contextMessage);

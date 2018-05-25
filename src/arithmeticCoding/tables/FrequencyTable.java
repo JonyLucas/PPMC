@@ -6,7 +6,7 @@
  * https://github.com/nayuki/Reference-arithmetic-coding
  */
 
-package arithmeticCoding;
+package arithmeticCoding.tables;
 
 /**
  * A table of symbol frequencies. The table holds data for symbols numbered from 0

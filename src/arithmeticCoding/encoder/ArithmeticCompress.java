@@ -6,15 +6,15 @@
  * https://github.com/nayuki/Reference-arithmetic-coding
  */
 
-package arithmeticCoding;
+package arithmeticCoding.encoder;
 
+import arithmeticCoding.tables.FrequencyTable;
+import arithmeticCoding.tables.SimpleFrequencyTable;
 import infra.BitOutputStream;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
