@@ -7,17 +7,19 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         int context;
-        String filePath;
+        String inputFile, outputFile;
         Scanner scan = new Scanner(System.in);
 
-        System.out.println("Digite o caminho do arquivo:");
-        filePath = scan.nextLine();
+        System.out.println("Digite o caminho do arquivo de entrada:");
+        inputFile = scan.nextLine();
+
+        System.out.println("Digite o caminho do arquivo de saida");
+        outputFile = scan.nextLine();
 
         System.out.println("Digite o tamanho do contexto do PPM: ");
         context = scan.nextInt();
 
-        PPMEncoder encoder = new PPMEncoder(filePath, context);
-        encoder.readAndCodify();
+        PPMEncoder.readAndCodify(inputFile, outputFile, context);
 
     }
 }

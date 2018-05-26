@@ -7,6 +7,7 @@
  */
 
 package arithmeticCoding.decoder;
+
 import arithmeticCoding.tables.FlatFrequencyTable;
 import arithmeticCoding.tables.FrequencyTable;
 import arithmeticCoding.tables.SimpleFrequencyTable;

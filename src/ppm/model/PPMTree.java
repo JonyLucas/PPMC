@@ -2,13 +2,17 @@ package ppm.model;
 
 public class PPMTree {
 
-    private int size, maxContext;
+    private int MAX_SIZE = 10, maxContext;
+    private int[] alphabet;
     private PPMNode root;
 
-    public PPMTree(int maxContext){
+    public PPMTree(int maxContext, int[] alphabet) throws Exception {
+        if (maxContext < 0 || maxContext > MAX_SIZE)
+            throw new Exception("Valor do contexto inválido, este valor deve estar entre 0 e 10");
+
+        this.alphabet = alphabet.clone();
         this.maxContext = maxContext;
         this.root = new PPMNode();
-        this.size = 0;
     }
 
     /**
@@ -22,6 +26,7 @@ public class PPMTree {
      */
     public void findByContext(int[] contextMessage){
         int msgSize = contextMessage.length; // O comprimento da mensagem.
+        String code = "";
 
         for(int i = 0; i < msgSize; i++){
             searchAndAdd(contextMessage);
@@ -47,6 +52,7 @@ public class PPMTree {
 
             auxNode = searchNode.findChild(symbols[searchLevel]);
             if(auxNode != null){
+                getInterval(searchNode, symbols[searchLevel]);
                 searchNode = auxNode;
                 /**
                  * Caso o símbolo encontrado esteja no final da string e foi encontrado na árvore
@@ -56,6 +62,7 @@ public class PPMTree {
                 if (searchLevel == maxLevel-1)
                     searchNode.incrementFrequency();
             }else{
+                remainingSymbols(searchNode);
                 searchNode.addChild(symbols[searchLevel]);
                 searchNode = searchNode.findChild(symbols[searchLevel]);
             }
@@ -64,6 +71,56 @@ public class PPMTree {
 
         }
 
+    }
+
+    /**
+     * Calcula a probabilidade do símbolo lido dentro do contexto do nó atual.
+     *
+     * @param currentNode
+     * @param symbol
+     * @return
+     */
+    private double getInterval(PPMNode currentNode, int symbol){
+        int frequency = 0, total = 0, numChildren = currentNode.getChildren().size();
+        double probability;
+
+        for (PPMNode child : currentNode.getChildren()){
+            total += child.getFrequency();
+            frequency = (child.getSymbol() == symbol) ? child.getFrequency() : frequency;
+        }
+
+        if(numChildren == alphabet.length) // Indica que o nó atual possui todos os símbolos possíveis dentro do seu contexto (Desconsidera o rô)
+            probability = frequency / ((double) total);
+        else
+            probability = frequency / ((double) total + (double) numChildren); // Considera-se o rô (que possui a frequência numChildren)
+
+        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
+        return probability;
+    }
+
+    /**
+     * Realiza o calculo da probabilidade dos símbolos que não estão presentes em determinado
+     * contexto (corresponde ao calculo do Rô (P) da tabela do contexto). Esse método só é chamado
+     * quando o símbolo lido não está presente no contexto atual.
+     * OBS: Não realiza o critério de exclusão para o contexto à um nível acima na hierarquia da árvore.
+     *
+     * @param currentNode
+     * @return
+     */
+    private double remainingSymbols(PPMNode currentNode){
+        int frequencies = 0, numChildren = currentNode.getChildren().size();
+        double probability;
+
+        if (numChildren == 0)
+            return 1;
+
+        for (PPMNode child : currentNode.getChildren()){
+            frequencies += child.getFrequency();
+        }
+
+        probability = numChildren / ((double) numChildren + (double) frequencies);
+        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
+        return probability;
     }
 
     /**
