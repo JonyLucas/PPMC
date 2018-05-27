@@ -1,16 +1,24 @@
 package ppm.model;
 
+import arithmeticCoding.encoder.ArithmeticEncoder;
+import arithmeticCoding.tables.SimpleFrequencyTable;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class PPMTree {
 
     private int MAX_SIZE = 10, maxContext;
-    private int[] alphabet;
+    private int[] alphabet, equivalentProbabilityContext;
     private PPMNode root;
+    private ArithmeticEncoder encoder;
 
     public PPMTree(int maxContext, int[] alphabet) throws Exception {
         if (maxContext < 0 || maxContext > MAX_SIZE)
             throw new Exception("Valor do contexto inválido, este valor deve estar entre 0 e 10");
 
         this.alphabet = alphabet.clone();
+        this.equivalentProbabilityContext = alphabet.clone();
         this.maxContext = maxContext;
         this.root = new PPMNode();
     }
@@ -24,9 +32,10 @@ public class PPMTree {
      * Após a realização desta busca, descrementa o comprimento da string e repete a busca no contexto N-1.
      * @param contextMessage
      */
-    public void findByContext(int[] contextMessage){
+    public void findByContext(int[] contextMessage, ArithmeticEncoder encoder) throws IOException {
+        this.encoder = encoder;
         int msgSize = contextMessage.length; // O comprimento da mensagem.
-        String code = "";
+        ArrayList<SimpleFrequencyTable> contextTable = new ArrayList<SimpleFrequencyTable>();
 
         for(int i = 0; i < msgSize; i++){
             searchAndAdd(contextMessage);
@@ -40,7 +49,7 @@ public class PPMTree {
      * @param symbols
      * @return
      */
-    private void searchAndAdd(int[] symbols){
+    private void searchAndAdd(int[] symbols) throws IOException {
         int searchLevel = 0; // Indica o nível de busca (contexto) na árvore.
         int maxLevel = symbols.length; // Corresponde ao contexto máximo (O tamanho da substring)
         PPMNode searchNode = this.root; // Inicia a busca pela raiz.
@@ -59,10 +68,13 @@ public class PPMTree {
                  * (o que indica que ele já foi encontrado antes dentro deste contexto),
                  * então incrementa a sua frequência.
                  **/
-                if (searchLevel == maxLevel-1)
+                if (searchLevel == maxLevel-1){
+                    System.out.println("Increment Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol());
                     searchNode.incrementFrequency();
+                }
             }else{
-                remainingSymbols(searchNode);
+                remainingSymbols(searchNode, symbols[searchLevel]);
+                System.out.println("Add Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol() + "\n");
                 searchNode.addChild(symbols[searchLevel]);
                 searchNode = searchNode.findChild(symbols[searchLevel]);
             }
@@ -80,21 +92,40 @@ public class PPMTree {
      * @param symbol
      * @return
      */
-    private double getInterval(PPMNode currentNode, int symbol){
-        int frequency = 0, total = 0, numChildren = currentNode.getChildren().size();
+    private double getInterval(PPMNode currentNode, int symbol) throws IOException {
+        int i = 0, index = 0, frequency = 0, total = 0;
+        int numChildren = currentNode.getChildren().size();
+        int [] frequencies = (numChildren == alphabet.length) ? new int[numChildren] : new int [numChildren+1];
         double probability;
+        String tableDescription = "";
 
+        System.out.println("Current context: " + currentNode.getSymbol());
         for (PPMNode child : currentNode.getChildren()){
+
+            if(child.getSymbol() == symbol){
+                index = i;
+                frequency = child.getFrequency();
+            }
+
+            tableDescription += i + ": " + child.getSymbol() + ", ";
             total += child.getFrequency();
-            frequency = (child.getSymbol() == symbol) ? child.getFrequency() : frequency;
+            frequencies[i++] = child.getFrequency();
         }
 
-        if(numChildren == alphabet.length) // Indica que o nó atual possui todos os símbolos possíveis dentro do seu contexto (Desconsidera o rô)
+        if(numChildren == alphabet.length) { // Indica que o nó atual possui todos os símbolos possíveis dentro do seu contexto (Desconsidera o rô)
             probability = frequency / ((double) total);
-        else
+        }else{
+            tableDescription += i + ": " + "Ro";
+            frequencies[i] = numChildren;
             probability = frequency / ((double) total + (double) numChildren); // Considera-se o rô (que possui a frequência numChildren)
+        }
 
-        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
+        System.out.println(tableDescription);
+        SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frequencies);
+        System.out.println(frequencyTable);
+        encoder.write(frequencyTable, index);
+
+//        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
         return probability;
     }
 
@@ -107,20 +138,59 @@ public class PPMTree {
      * @param currentNode
      * @return
      */
-    private double remainingSymbols(PPMNode currentNode){
-        int frequencies = 0, numChildren = currentNode.getChildren().size();
+    private double remainingSymbols(PPMNode currentNode, int symbol) throws IOException {
+        int i = 0, total = 0, numChildren = currentNode.getChildren().size();
+        int frequencies[] = new int[numChildren+1];
         double probability;
+        String tableDescription = "";
+
+        System.out.println("Current context: " + currentNode.getSymbol());
+        if(currentNode.equals(this.root)){
+            findEquiProbContext(symbol);
+            return 1;
+        }
 
         if (numChildren == 0)
             return 1;
 
         for (PPMNode child : currentNode.getChildren()){
-            frequencies += child.getFrequency();
+            tableDescription += i + ": " + child.getSymbol() + ", ";
+            total += child.getFrequency();
+            frequencies[i++] = child.getFrequency();
         }
 
-        probability = numChildren / ((double) numChildren + (double) frequencies);
-        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
+        frequencies[i] = numChildren; // Inclui a frequencia do Rô (igual ao número de filhos do nó)
+        tableDescription += i + ": " + "Ro";
+
+        System.out.println(tableDescription);
+
+        SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frequencies);
+        System.out.println(frequencyTable);
+        encoder.write(frequencyTable, i);
+
+        probability = numChildren / ((double) numChildren + (double) total);
+
+//        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
         return probability;
+    }
+
+    private void findEquiProbContext(int symbol) throws IOException {
+        int j = 0, index = 0, size = equivalentProbabilityContext.length;
+        int [] frenquencies = new int[size], remainingSymbols = new int[size-1];
+        for (int i  = 0; i < size; i++){
+            frenquencies[i] = 1;
+            if (equivalentProbabilityContext[i] == symbol){
+                index = i;
+                continue;
+            }
+            remainingSymbols[j++] = equivalentProbabilityContext[i];
+
+        }
+
+        encoder.write(new SimpleFrequencyTable(frenquencies), index);
+
+        this.equivalentProbabilityContext = remainingSymbols;
+
     }
 
     /**
@@ -146,6 +216,13 @@ public class PPMTree {
         PPMNode node = this.root;
         System.out.println(root.printNode(-1));
 
+    }
+
+    public void printAlphabet(){
+        int size = alphabet.length;
+        for (int i = 0; i < size-1; i++){
+
+        }
     }
 
 }

@@ -19,7 +19,8 @@ public class Main {
         System.out.println("Digite o tamanho do contexto do PPM: ");
         context = scan.nextInt();
 
-        PPMEncoder.readAndCodify(inputFile, outputFile, context);
+        PPMEncoder encoder = new PPMEncoder(inputFile, outputFile, context);
+        encoder.readAndCodify();
 
     }
 }

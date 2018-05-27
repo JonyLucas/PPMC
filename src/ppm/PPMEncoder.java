@@ -1,5 +1,7 @@
 package ppm;
 
+import arithmeticCoding.encoder.ArithmeticEncoder;
+import arithmeticCoding.tables.SimpleFrequencyTable;
 import infra.BitOutputStream;
 import ppm.model.PPMTree;
 
@@ -9,16 +11,24 @@ import static java.util.Arrays.fill;
 
 public class PPMEncoder {
 
+    private int context;
+    private String inputFile, outputFile;
+    private ArithmeticEncoder encoder;
+
+    public PPMEncoder(String inputFile, String outputFile, int context) throws FileNotFoundException {
+        this.context = context;
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
+        encoder = new ArithmeticEncoder(new BitOutputStream(new FileOutputStream(outputFile)));
+    }
+
     /**
      * Método que realiza a construção inicial da árvore do PPM, a escrita do cabeçalho (K do contexto e conjunto do alfabeto),
      * e, posteriormente, realiza a segunda leitura do arquivo, utilizando um buffer (substring) de tamanho máximo K (tamanho
      * do contexto), e faz a codificação na árvore (por meio do método findByContext da PPMTree).
-     * @param inputFile
-     * @param outputFile
-     * @param context
      * @throws Exception
      */
-    public static void readAndCodify(String inputFile, String outputFile, int context) throws Exception {
+    public void readAndCodify() throws Exception {
 
         int alphabet[] = getAlphabet(inputFile);
         PPMTree tree = new PPMTree(context, alphabet);
@@ -33,10 +43,11 @@ public class PPMEncoder {
             int currentSymbol = br.read();
             while (currentSymbol != -1) {
                 subString = addAndShift(subString, currentSymbol);
-                tree.findByContext(subString);
+                tree.findByContext(subString, encoder);
                 currentSymbol = br.read();
             }
 
+            encoder.finish();
             tree.showTree();
 
         } catch (FileNotFoundException e) {
@@ -54,7 +65,7 @@ public class PPMEncoder {
      * @return
      * @throws Exception
      */
-    public static int[] getAlphabet(String filePath) throws Exception {
+    public int[] getAlphabet(String filePath) throws Exception {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) { // Leitura com Buffered Reader (Provisório)
             int alphabetSize = 0;
@@ -99,7 +110,7 @@ public class PPMEncoder {
      * @param alphabet
      * @throws FileNotFoundException
      */
-    private static void writeReader(String outputFile, int context, int[] alphabet) throws FileNotFoundException{
+    private void writeReader(String outputFile, int context, int[] alphabet) throws FileNotFoundException{
         try(DataOutputStream out = new DataOutputStream( new FileOutputStream(outputFile) )){
             int size = alphabet.length;
             out.writeByte(context);
@@ -128,7 +139,7 @@ public class PPMEncoder {
      * @param symbol
      * @return
      */
-    private static int[] addAndShift(int[] subString, int symbol) {
+    private int[] addAndShift(int[] subString, int symbol) {
         int i, size = subString.length;
 
         // Verifica se há posição vazia (-1) no array, e insere o símbolo em questão nesta posição.
@@ -146,6 +157,9 @@ public class PPMEncoder {
         subString[i] = symbol;
 
         return subString;
+    }
+
+    public void writeInFile(SimpleFrequencyTable frequencyTable){
     }
 
 }

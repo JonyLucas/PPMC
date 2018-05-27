@@ -126,12 +126,17 @@ public abstract class ArithmeticCoderBase {
 			throw new IllegalArgumentException("Symbol has zero frequency");
 		if (total > MAX_TOTAL)
 			throw new IllegalArgumentException("Cannot code symbol because total is too large");
+
+		System.out.println("Total: " + total);
+		System.out.println("symbol: " + symbol + " - Low Range: " + symLow + " - High Range: " + symHigh);
 		
 		// Update range
 		long newLow  = low + symLow  * range / total;
 		long newHigh = low + symHigh * range / total - 1;
 		low = newLow;
 		high = newHigh;
+
+		System.out.println("new Low: " + newLow + " - new High: " + newHigh + "\n\n");
 		
 		// While the highest bits are equal
 		while (((low ^ high) & TOP_MASK) == 0) {

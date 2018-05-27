@@ -64,5 +64,9 @@ public class PPMNode {
         return description;
     }
 
+    public String toString(){
+        return ("Symbol: " + this.symbol + " - Frequency: " + this.frequency);
+    }
+
 
 }
