@@ -12,14 +12,18 @@ import static java.util.Arrays.fill;
 public class PPMEncoder {
 
     private int context;
-    private String inputFile, outputFile;
+    private String inputFile;
+    private FileOutputStream out;
+    private DataOutputStream dataOut;
     private ArithmeticEncoder encoder;
 
     public PPMEncoder(String inputFile, String outputFile, int context) throws FileNotFoundException {
         this.context = context;
         this.inputFile = inputFile;
-        this.outputFile = outputFile;
-        encoder = new ArithmeticEncoder(new BitOutputStream(new FileOutputStream(outputFile)));
+
+        this.out = new FileOutputStream(outputFile);
+        this.dataOut = new DataOutputStream(out);
+        this.encoder = new ArithmeticEncoder(new BitOutputStream(out));
     }
 
     /**
@@ -31,6 +35,7 @@ public class PPMEncoder {
     public void readAndCodify() throws Exception {
 
         int alphabet[] = getAlphabet(inputFile);
+        writeReader(context, alphabet);
         PPMTree tree = new PPMTree(context, alphabet);
 
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) { //Leitura com Buffered Reader
@@ -48,6 +53,8 @@ public class PPMEncoder {
             }
 
             encoder.finish();
+            dataOut.close();
+            out.close();
             tree.showTree();
 
         } catch (FileNotFoundException e) {
@@ -104,24 +111,20 @@ public class PPMEncoder {
     }
 
     /**
-     * @// TODO: 25/05/2018 Incluir no final da execução do algoritmo, e escrever o contexto, alfabeto e código recebido pelo codificador aritmético 
-     * @param outputFile
      * @param context
      * @param alphabet
      * @throws FileNotFoundException
      */
-    private void writeReader(String outputFile, int context, int[] alphabet) throws FileNotFoundException{
-        try(DataOutputStream out = new DataOutputStream( new FileOutputStream(outputFile) )){
+    private void writeReader(int context, int[] alphabet){
+        try{
             int size = alphabet.length;
-            out.writeByte(context);
-            for (int i = 0; i < size; i++){
-                System.out.println("Writing: " + alphabet[i]);
-                if (alphabet[i] == -1){
-                    out.writeByte(alphabet[i]);
-                    break;
-                }
-                out.writeByte(alphabet[i]);
-            }
+            String header = context + " ";
+
+            for (int i = 0; i < size; i++)
+                header += alphabet[i] + " ";
+
+            System.out.println("Header: " + header);
+            dataOut.writeBytes(header + "\n");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -149,9 +152,6 @@ public class PPMEncoder {
         subString[i] = symbol;
 
         return subString;
-    }
-
-    public void writeInFile(SimpleFrequencyTable frequencyTable){
     }
 
 }

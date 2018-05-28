@@ -35,7 +35,6 @@ public class PPMTree {
     public void findByContext(int[] contextMessage, ArithmeticEncoder encoder) throws IOException {
         this.encoder = encoder;
         int msgSize = contextMessage.length; // O comprimento da mensagem.
-        ArrayList<SimpleFrequencyTable> contextTable = new ArrayList<SimpleFrequencyTable>();
 
         for(int i = 0; i < msgSize; i++){
             searchAndAdd(contextMessage);
@@ -45,7 +44,12 @@ public class PPMTree {
     }
 
     /**
-     * Realiza a busca do simbolo lido a partir da raiz da árvore
+     * Realiza a busca do simbolo lido a partir da raiz da árvore e cria um novo nó,
+     * caso o nó atual de busca não possua um nó filho com o símbolo lido, isto é,
+     * o símbolo não está presente no contexto atual da busca. Este método também
+     * incrementa a frequência do símbolo no contexto de atual, caso o símbolo exista
+     * no contexto de busca corrente.
+     *
      * @param symbols
      * @return
      */
@@ -67,7 +71,7 @@ public class PPMTree {
                  * então incrementa a sua frequência.
                  **/
                 if (searchLevel == maxLevel-1){
-                    getInterval(searchNode, symbols[searchLevel]);
+                    calculateInterval(searchNode, symbols[searchLevel]);
                     System.out.println("Increment Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol());
                     searchNode = auxNode;
                     searchNode.incrementFrequency();
@@ -88,51 +92,44 @@ public class PPMTree {
     }
 
     /**
-     * Calcula a probabilidade do símbolo lido dentro do contexto do nó atual.
+     * Monta uma tabela de frequências de símbolos dentro do contexto do nó atual e a utiliza,
+     * passando como argumento o codificador aritmético, para escrever o intervalo do símbolo
+     * lido (passado como argumento) no arquivo de saída.
      *
      * @param currentNode
      * @param symbol
      * @return
      */
-    private double getInterval(PPMNode currentNode, int symbol) throws IOException {
-        int i = 0, index = 0, frequency = 0, total = 0;
+    private void calculateInterval(PPMNode currentNode, int symbol) throws IOException {
+        int i = 0, index = 0;
         int numChildren = currentNode.getChildren().size();
         int [] frequencies = (numChildren == alphabet.length) ? new int[numChildren] : new int [numChildren+1];
-        double probability;
         String tableDescription = "";
 
         System.out.println("Current context: " + currentNode.getSymbol());
         for (PPMNode child : currentNode.getChildren()){
 
-            if(child.getSymbol() == symbol){
+            if(child.getSymbol() == symbol)
                 index = i;
-                frequency = child.getFrequency();
-            }
 
             tableDescription += i + ": " + child.getSymbol() + ", ";
-            total += child.getFrequency();
             frequencies[i++] = child.getFrequency();
         }
 
-        if(numChildren == alphabet.length) { // Indica que o nó atual possui todos os símbolos possíveis dentro do seu contexto (Desconsidera o rô)
-            probability = frequency / ((double) total);
-        }else{
+        if(numChildren != alphabet.length) { // Indica que o nó atual não possui todos os símbolos possíveis dentro do seu contexto (há a existência do rô)
             tableDescription += i + ": " + "Ro";
             frequencies[i] = numChildren;
-            probability = frequency / ((double) total + (double) numChildren); // Considera-se o rô (que possui a frequência numChildren)
         }
 
         System.out.println(tableDescription);
         SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frequencies);
         System.out.println(frequencyTable);
-        encoder.write(frequencyTable, index);
+        encoder.write(frequencyTable, index); // Escreve o intervalo do codificador aritmético no arquivo
 
-//        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
-        return probability;
     }
 
     /**
-     * Realiza o calculo da probabilidade dos símbolos que não estão presentes em determinado
+     * Realiza a construção da tabela dos símbolos que não estão presentes em determinado
      * contexto (corresponde ao calculo do Rô (P) da tabela do contexto). Esse método só é chamado
      * quando o símbolo lido não está presente no contexto atual.
      * OBS: Não realiza o critério de exclusão para o contexto à um nível acima na hierarquia da árvore.
@@ -140,20 +137,18 @@ public class PPMTree {
      * @param currentNode
      * @return
      */
-    private double remainingSymbols(PPMNode currentNode, int symbol) throws IOException {
+    private void remainingSymbols(PPMNode currentNode, int symbol) throws IOException {
         int i = 0, total = 0, numChildren = currentNode.getChildren().size();
         int frequencies[] = new int[numChildren+1]; // Inclui as frequências dos símbolos dos nós filhos e do rô (numChildren)
-        double probability;
         String tableDescription = "";
 
         System.out.println("Current context: " + currentNode.getSymbol());
-        if(currentNode.equals(this.root)){
-            findEquiProbContext(symbol);
-            return 1;
-        }
 
-        if (numChildren == 0)
-            return 1;
+        if (numChildren == 0){ // Em caso do contexto atual não possuir símbolos, não computa o intervalo no codificador aritmético
+            if(currentNode.equals(this.root))
+                findEquiProbContext(symbol); // No caso do nó atual ser a raiz, faz-se a busca do símbolo no contexto de equiprobabilidade (K = -1)
+            return;
+        }
 
         for (PPMNode child : currentNode.getChildren()){
             tableDescription += i + ": " + child.getSymbol() + ", ";
@@ -168,12 +163,12 @@ public class PPMTree {
 
         SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frequencies);
         System.out.println(frequencyTable);
-        encoder.write(frequencyTable, i);
+        encoder.write(frequencyTable, i); // Escreve o intervalo do rô (P), por meio codificador aritmético, no arquivo
 
-        probability = numChildren / ((double) numChildren + (double) total);
+        if(currentNode.equals(this.root))
+            findEquiProbContext(symbol); // No caso do nó atual ser a raiz, faz-se a busca do símbolo no contexto de equiprobabilidade (K = -1)
 
-//        System.out.println(probability); // Realizar o cálculo do codificador Aqui!
-        return probability;
+
     }
 
     /**
@@ -189,6 +184,7 @@ public class PPMTree {
         int [] frenquencies = new int[size], remainingSymbols = new int[size-1];
         String tableDescription = "";
 
+        System.out.println("Equivalent probable context (K = -1)");
         for (int i  = 0; i < size; i++){
             frenquencies[i] = 1; // No contexto -1, todos os símbolos tem frequência 1
             tableDescription += i + ": " + equivalentProbabilityContext[i] + ", ";
@@ -205,7 +201,7 @@ public class PPMTree {
         System.out.println(tableDescription);
         SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frenquencies); // Tabela de frequência utilizada para escrita do codificador aritmético
         System.out.println(frequencyTable);
-        encoder.write(frequencyTable, index);
+        encoder.write(frequencyTable, index); // Escreve o intervalo do codificador aritmético no arquivo
 
         this.equivalentProbabilityContext = remainingSymbols;
 
