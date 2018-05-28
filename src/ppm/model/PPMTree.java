@@ -68,8 +68,8 @@ public class PPMTree {
                  **/
                 if (searchLevel == maxLevel-1){
                     getInterval(searchNode, symbols[searchLevel]);
-                    searchNode = auxNode;
                     System.out.println("Increment Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol());
+                    searchNode = auxNode;
                     searchNode.incrementFrequency();
                 }else {
                     searchNode = auxNode;
