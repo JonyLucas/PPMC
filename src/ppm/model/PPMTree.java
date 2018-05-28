@@ -61,16 +61,18 @@ public class PPMTree {
 
             auxNode = searchNode.findChild(symbols[searchLevel]);
             if(auxNode != null){
-                getInterval(searchNode, symbols[searchLevel]);
-                searchNode = auxNode;
                 /**
                  * Caso o símbolo encontrado esteja no final da string e foi encontrado na árvore
                  * (o que indica que ele já foi encontrado antes dentro deste contexto),
                  * então incrementa a sua frequência.
                  **/
                 if (searchLevel == maxLevel-1){
+                    getInterval(searchNode, symbols[searchLevel]);
+                    searchNode = auxNode;
                     System.out.println("Increment Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol());
                     searchNode.incrementFrequency();
+                }else {
+                    searchNode = auxNode;
                 }
             }else{
                 remainingSymbols(searchNode, symbols[searchLevel]);
@@ -140,7 +142,7 @@ public class PPMTree {
      */
     private double remainingSymbols(PPMNode currentNode, int symbol) throws IOException {
         int i = 0, total = 0, numChildren = currentNode.getChildren().size();
-        int frequencies[] = new int[numChildren+1];
+        int frequencies[] = new int[numChildren+1]; // Inclui as frequências dos símbolos dos nós filhos e do rô (numChildren)
         double probability;
         String tableDescription = "";
 
@@ -174,20 +176,36 @@ public class PPMTree {
         return probability;
     }
 
+    /**
+     * Realiza uma busca dos símbolo no contexto onde os símbolos são equiprováveis (K = -1).
+     * Após a busca do símbolo neste contexto, escreve o intervalo correspondente à probabilidade
+     * deste símbolo (por meio do codificador aritmético) e, em seguida, é realizado decremento dos
+     * símbolos neste contexto, eliminando este símbolo lido.
+     * @param symbol
+     * @throws IOException
+     */
     private void findEquiProbContext(int symbol) throws IOException {
         int j = 0, index = 0, size = equivalentProbabilityContext.length;
         int [] frenquencies = new int[size], remainingSymbols = new int[size-1];
+        String tableDescription = "";
+
         for (int i  = 0; i < size; i++){
-            frenquencies[i] = 1;
-            if (equivalentProbabilityContext[i] == symbol){
+            frenquencies[i] = 1; // No contexto -1, todos os símbolos tem frequência 1
+            tableDescription += i + ": " + equivalentProbabilityContext[i] + ", ";
+
+            if (equivalentProbabilityContext[i] == symbol){ // Armazena o índice do símbolo que está sendo codificado
                 index = i;
                 continue;
             }
-            remainingSymbols[j++] = equivalentProbabilityContext[i];
+
+            remainingSymbols[j++] = equivalentProbabilityContext[i]; // Armazena os símbolos do contexto, removendo o símbolo que está sendo codificado
 
         }
 
-        encoder.write(new SimpleFrequencyTable(frenquencies), index);
+        System.out.println(tableDescription);
+        SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frenquencies); // Tabela de frequência utilizada para escrita do codificador aritmético
+        System.out.println(frequencyTable);
+        encoder.write(frequencyTable, index);
 
         this.equivalentProbabilityContext = remainingSymbols;
 
@@ -212,17 +230,16 @@ public class PPMTree {
     }
 
     public void showTree(){
-
-        PPMNode node = this.root;
         System.out.println(root.printNode(-1));
-
     }
 
     public void printAlphabet(){
         int size = alphabet.length;
+        String alphabetDesc = "Alphabet: ";
         for (int i = 0; i < size-1; i++){
-
+            alphabetDesc += alphabet[i] + " ";
         }
+        System.out.println(alphabetDesc);
     }
 
 }

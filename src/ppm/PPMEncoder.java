@@ -142,14 +142,6 @@ public class PPMEncoder {
     private int[] addAndShift(int[] subString, int symbol) {
         int i, size = subString.length;
 
-        // Verifica se há posição vazia (-1) no array, e insere o símbolo em questão nesta posição.
-        for (i = 0; i < size; i++) {
-            if (subString[i] == -1) {
-                subString[i] = symbol;
-                return subString;
-            }
-        }
-
         // Realiza o deslocamento para à esquerda das posições e insere o símbolo em questão no final.
         for (i = 0; i < size - 1; i++) {
             subString[i] = subString[i + 1];

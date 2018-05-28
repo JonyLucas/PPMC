@@ -127,8 +127,8 @@ public abstract class ArithmeticCoderBase {
 		if (total > MAX_TOTAL)
 			throw new IllegalArgumentException("Cannot code symbol because total is too large");
 
-		System.out.println("Total: " + total);
-		System.out.println("symbol: " + symbol + " - Low Range: " + symLow + " - High Range: " + symHigh);
+		System.out.println("Total (Frequency): " + total);
+		System.out.println("Symbol index: " + symbol + " - Low Range: " + symLow + " - High Range: " + symHigh);
 		
 		// Update range
 		long newLow  = low + symLow  * range / total;
