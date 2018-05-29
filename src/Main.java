@@ -27,8 +27,8 @@ public class Main {
         encoder.readAndCodify();
 
         PPMDecoder decoder = new PPMDecoder(outputFileEncoder, outputFileDecoder);
-        decoder.readAndDecodefy();
-        
+        decoder.readAndDecode();
+
         scan.close();
 
     }

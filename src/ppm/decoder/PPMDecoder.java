@@ -9,6 +9,7 @@ import java.io.*;
 
 public class PPMDecoder {
 
+    private int context, fileSize;
     private DataInputStream in;
     private DataOutputStream out;
     private ArithmeticDecoder decoder;
@@ -17,14 +18,20 @@ public class PPMDecoder {
         System.out.println("Input: " + inputFile);
         this.out = new DataOutputStream( new FileOutputStream(outputFile));
         this.in = new DataInputStream( new FileInputStream(inputFile) );
+
+        this.context = in.read();
+        this.fileSize = in.read();
+
         this.decoder = new ArithmeticDecoder(new BitInputStream(in));
     }
 
-    public void readAndDecodefy() throws IOException {
+    public void readAndDecode() throws IOException {
 
-        System.out.println(in.read());
-        System.out.println(in.read());
         try {
+
+            for (int i = 0; i <= fileSize; i++){
+
+            }
 
         }catch (Exception e){
 
