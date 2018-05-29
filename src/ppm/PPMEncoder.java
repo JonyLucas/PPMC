@@ -13,16 +13,14 @@ public class PPMEncoder {
 
     private int context;
     private String inputFile;
-    private FileOutputStream out;
-    private DataOutputStream dataOut;
+    private DataOutputStream out;
     private ArithmeticEncoder encoder;
 
     public PPMEncoder(String inputFile, String outputFile, int context) throws FileNotFoundException {
         this.context = context;
         this.inputFile = inputFile;
 
-        this.out = new FileOutputStream(outputFile);
-        this.dataOut = new DataOutputStream(out);
+        this.out = new DataOutputStream(new FileOutputStream(outputFile));
         this.encoder = new ArithmeticEncoder(new BitOutputStream(out));
     }
 
@@ -34,9 +32,8 @@ public class PPMEncoder {
      */
     public void readAndCodify() throws Exception {
 
-        int alphabet[] = getAlphabet(inputFile);
-        writeReader(context, alphabet);
-        PPMTree tree = new PPMTree(context, alphabet);
+        writeReader(context, getFileSize(inputFile));
+        PPMTree tree = new PPMTree(encoder, context);
 
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) { //Leitura com Buffered Reader
             int[] subString = new int[context];
@@ -48,12 +45,11 @@ public class PPMEncoder {
             int currentSymbol = br.read();
             while (currentSymbol != -1) {
                 subString = addAndShift(subString, currentSymbol);
-                tree.findByContext(subString, encoder);
+                tree.findByContext(subString);
                 currentSymbol = br.read();
             }
 
             encoder.finish();
-            dataOut.close();
             out.close();
             tree.showTree();
 
@@ -66,42 +62,23 @@ public class PPMEncoder {
 
 
     /**
-     * Método estático que realiza a primeira leitura do arquivo e retorna um array
-     * contendo todos os símbolos do alfabeto do arquivo de entrada.
+     * Método que percorre o arquivo de entrada e calcula o número de bytes deste arquivo.
      * @param filePath
      * @return
      * @throws Exception
      */
-    public int[] getAlphabet(String filePath) throws Exception {
+    public int getFileSize(String filePath) throws Exception {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) { // Leitura com Buffered Reader (Provisório)
-            int alphabetSize = 0;
-            int auxAlphabet[] = new int[257]; // Alfabeto com os 256 símbolos do ASCII e -1 para indicar o fim do conjunto (Para facilitar a leitura no decodificador)
-            fill(auxAlphabet, -1); // Preenche o alfabeto com -1
+            int fileSize = 0;
 
             int currentSymbol = br.read();
             while (currentSymbol != -1) {
-
-                for (int i = 0; i < 256; i++){
-                    if(auxAlphabet[i] == currentSymbol){
-                        break;
-                    }
-                    if(auxAlphabet[i] == -1){
-                        auxAlphabet[i] = currentSymbol;
-                        alphabetSize++;
-                        break;
-                    }
-                }
+                fileSize++;
                 currentSymbol = br.read();
             }
 
-            int alphabet[] = new int[alphabetSize];
-
-            for (int i = 0; i < alphabetSize; i++){
-                alphabet[i] = auxAlphabet[i];
-            }
-
-            return alphabet;
+            return fileSize;
 
         } catch (FileNotFoundException e) {
             throw new Exception("Erro: Arquivo não encontrado!");
@@ -112,20 +89,13 @@ public class PPMEncoder {
 
     /**
      * @param context
-     * @param alphabet
+     * @param fileSize
      * @throws FileNotFoundException
      */
-    private void writeReader(int context, int[] alphabet){
+    private void writeReader(int context, int fileSize){
         try{
-            int size = alphabet.length;
-            String header = context + " ";
-
-            for (int i = 0; i < size; i++)
-                header += alphabet[i] + " ";
-
-            System.out.println("Header: " + header);
-            dataOut.writeBytes(header + "\n");
-
+            out.writeByte(context);
+            out.writeByte(fileSize);
         } catch (IOException e) {
             e.printStackTrace();
         }
