@@ -1,13 +1,10 @@
-package ppm;
+package ppm.encoder;
 
 import arithmeticCoding.encoder.ArithmeticEncoder;
-import arithmeticCoding.tables.SimpleFrequencyTable;
 import infra.BitOutputStream;
-import ppm.model.PPMTree;
+import ppm.encoder.model.PPMTree;
 
 import java.io.*;
-
-import static java.util.Arrays.fill;
 
 public class PPMEncoder {
 

@@ -1,4 +1,4 @@
-package ppm.model;
+package ppm.decoder.model;
 
 import java.util.ArrayList;
 
@@ -45,28 +45,5 @@ public class PPMNode {
 
         return null;
     }
-
-    /**
-     * Realiza uma exibição formata do nó em questão e dos seus filhos
-     * @param context
-     * @return
-     */
-    public String printNode(int context){
-        String description = "";
-        for (int i = 0; i < context; i++)
-            description += "\t"; // Realiza uma indentação por contexto
-
-        description += "context: " + context + " - Symbol: [" + this.symbol + "] - Frequency: " + this.frequency + "\n";
-
-        for (PPMNode child : children)
-            description += child.printNode(context+1);
-
-        return description;
-    }
-
-    public String toString(){
-        return ("Symbol: " + this.symbol + " - Frequency: " + this.frequency);
-    }
-
 
 }

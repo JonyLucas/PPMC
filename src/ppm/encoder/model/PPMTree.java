@@ -1,10 +1,9 @@
-package ppm.model;
+package ppm.encoder.model;
 
 import arithmeticCoding.encoder.ArithmeticEncoder;
 import arithmeticCoding.tables.SimpleFrequencyTable;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class PPMTree {
 
@@ -185,12 +184,10 @@ public class PPMTree {
     private void findEquiProbContext(int symbol) throws IOException {
         int j = 0, index = 0, size = equivalentProbabilitySymbols.length;
         int [] frenquencies = new int[size], remainingSymbols = new int[size-1];
-        String tableDescription = "";
 
         System.out.println("Equivalent probable context (K = -1)");
         for (int i  = 0; i < size; i++){
             frenquencies[i] = 1; // No contexto -1, todos os símbolos tem frequência 1
-            tableDescription += i + ": " + equivalentProbabilitySymbols[i] + ", ";
 
             if (equivalentProbabilitySymbols[i] == symbol){ // Armazena o índice do símbolo que está sendo codificado
                 index = i;
@@ -201,9 +198,7 @@ public class PPMTree {
 
         }
 
-        System.out.println(tableDescription);
         SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frenquencies); // Tabela de frequência utilizada para escrita do codificador aritmético
-        System.out.println(frequencyTable);
         encoder.write(frequencyTable, index); // Escreve o intervalo do codificador aritmético no arquivo
 
         this.equivalentProbabilitySymbols = remainingSymbols;
