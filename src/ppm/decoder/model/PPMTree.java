@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class PPMTree {
 
     private int MAX_SIZE = 10, maxContext;
-    private int[] equivalentProbabilitySymbols, subString;
+    private int[] equivalentProbabilitySymbols, subString, lowerMessage;
 
     private DataOutputStream out;
 
@@ -38,6 +38,7 @@ public class PPMTree {
         // Substring que contêm os últimos K símbolos decodificados
         subString = new int[maxContext];
         Arrays.fill(subString, -1);
+        lowerMessage = subString.clone();
 
         equivalentProbabilitySymbols = new int[256];
         for (int i = 0; i < 256; i++)
@@ -80,7 +81,7 @@ public class PPMTree {
      * @throws IOException
      */
     public void getInLowerContext() throws IOException {
-        int[] lowerMessage = subString.clone();
+        lowerMessage = removeEmptySpaces(lowerMessage);
         lowerMessage = decrementMessage(lowerMessage);
         this.currentNode = searchNode(lowerMessage);
     }
@@ -169,14 +170,16 @@ public class PPMTree {
     private void constructAndAdd() throws IOException {
         int[] contextMessage = subString.clone();
         int msgSize = contextMessage.length;
+        PPMNode aux;
 
         for (int i = 0; i < msgSize; i++) {
-            searchAndAdd(contextMessage);
+            aux = searchAndAdd(contextMessage);
             contextMessage = decrementMessage(contextMessage);
+            this.currentNode = (currentNode.getContextLevel() < aux.getContextLevel()) ? aux : currentNode;
         }
     }
 
-    private void searchAndAdd(int[] symbols) throws IOException {
+    private PPMNode searchAndAdd(int[] symbols) throws IOException {
         int searchLevel = 0; // Indica o nível de busca (contexto) na árvore.
         int maxLevel = symbols.length; // Corresponde ao contexto máximo (O tamanho da substring)
         PPMNode searchNode = this.root; // Inicia a busca pela raiz.
@@ -209,6 +212,8 @@ public class PPMTree {
             searchLevel++;
 
         }
+
+        return searchNode;
 
     }
 
@@ -257,6 +262,7 @@ public class PPMTree {
             subString[i] = subString[i + 1];
         }
         subString[i] = symbol;
+        lowerMessage = subString.clone();
 
         out.write(symbol);
 
@@ -271,6 +277,7 @@ public class PPMTree {
      * @return
      */
     private int[] decrementMessage(int[] message) {
+
         int newSize = message.length - 1;
         int[] newMessage = new int[newSize]; //Cria um array com o comprimento (n) da mensagem inicial - 1
 
@@ -279,6 +286,16 @@ public class PPMTree {
         }
 
         return newMessage;
+    }
+
+    /**
+     * Método que retorna um array sem os espaços em brancos (-1) do array passado como argumento;
+     * @param message
+     * @return
+     */
+    private int[] removeEmptySpaces(int[] message) {
+
+        return (message[0] == -1) ? removeEmptySpaces(decrementMessage(message)) : message;
     }
 
     public void showTree() {

@@ -42,7 +42,6 @@ public class PPMEncoder {
 
             for (int i = 0 ; i < fileSize; i++) {
                 int currentSymbol = in.readUnsignedByte();
-                System.out.println(currentSymbol);
                 subString = addAndShift(subString, currentSymbol);
                 tree.findByContext(subString);
             }
