@@ -183,11 +183,11 @@ public class PPMTree {
      */
     private void findEquiProbContext(int symbol) throws IOException {
         int j = 0, index = 0, size = equivalentProbabilitySymbols.length;
-        int [] frenquencies = new int[size], remainingSymbols = new int[size-1];
+        int [] frequencies = new int[size], remainingSymbols = new int[size-1];
 
         System.out.println("Equivalent probable context (K = -1)");
         for (int i  = 0; i < size; i++){
-            frenquencies[i] = 1; // No contexto -1, todos os símbolos tem frequência 1
+            frequencies[i] = 1; // No contexto -1, todos os símbolos tem frequência 1
 
             if (equivalentProbabilitySymbols[i] == symbol){ // Armazena o índice do símbolo que está sendo codificado
                 index = i;
@@ -198,7 +198,7 @@ public class PPMTree {
 
         }
 
-        SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frenquencies); // Tabela de frequência utilizada para escrita do codificador aritmético
+        SimpleFrequencyTable frequencyTable = new SimpleFrequencyTable(frequencies); // Tabela de frequência utilizada para escrita do codificador aritmético
         encoder.write(frequencyTable, index); // Escreve o intervalo do codificador aritmético no arquivo
 
         this.equivalentProbabilitySymbols = remainingSymbols;

@@ -15,7 +15,6 @@ public class PPMDecoder {
     private ArithmeticDecoder decoder;
 
     public PPMDecoder(String inputFile, String outputFile) throws IOException{
-        System.out.println("Input: " + inputFile);
         this.out = new DataOutputStream( new FileOutputStream(outputFile));
         this.in = new DataInputStream( new FileInputStream(inputFile) );
 
@@ -28,6 +27,7 @@ public class PPMDecoder {
     public void readAndDecode() throws IOException {
 
         try {
+            PPMTree tree = new PPMTree(decoder, context);
 
             for (int i = 0; i <= fileSize; i++){
 

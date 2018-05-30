@@ -32,18 +32,18 @@ public class PPMEncoder {
         writeReader(context, getFileSize(inputFile));
         PPMTree tree = new PPMTree(encoder, context);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) { //Leitura com Buffered Reader
+        try (DataInputStream in = new DataInputStream( new FileInputStream(inputFile) )) {
             int[] subString = new int[context];
 
             for (int i = 0; i < context; i++) {
                 subString[i] = -1;
             }
 
-            int currentSymbol = br.read();
+            int currentSymbol = in.read();
             while (currentSymbol != -1) {
                 subString = addAndShift(subString, currentSymbol);
                 tree.findByContext(subString);
-                currentSymbol = br.read();
+                currentSymbol = in.read();
             }
 
             encoder.finish();
@@ -66,14 +66,16 @@ public class PPMEncoder {
      */
     public int getFileSize(String filePath) throws Exception {
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) { // Leitura com Buffered Reader (Provisório)
+        try (DataInputStream in = new DataInputStream( new FileInputStream(filePath) )) { // Leitura com Buffered Reader (Provisório)
             int fileSize = 0;
 
-            int currentSymbol = br.read();
+            int currentSymbol = in.read();
             while (currentSymbol != -1) {
                 fileSize++;
-                currentSymbol = br.read();
+                currentSymbol = in.read();
             }
+
+            System.out.println(fileSize);
 
             return fileSize;
 
