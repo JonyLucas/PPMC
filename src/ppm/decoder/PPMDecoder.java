@@ -28,7 +28,7 @@ public class PPMDecoder {
         try {
             PPMTree tree = new PPMTree(decoder, out, context);
 
-            for (int i = 0; i <= fileSize; i++){
+            for (int i = 0; i < fileSize; i++){
                 tree.searchAndDecode();
             }
 
