@@ -6,7 +6,7 @@
  * https://github.com/nayuki/Reference-arithmetic-coding
  */
 
-package arithmeticCoding.encoder;
+package arithmeticCoding;
 import arithmeticCoding.ArithmeticCoderBase;
 import arithmeticCoding.tables.CheckedFrequencyTable;
 import arithmeticCoding.tables.FrequencyTable;

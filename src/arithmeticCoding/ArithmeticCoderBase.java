@@ -8,8 +8,6 @@
 
 package arithmeticCoding;
 
-import arithmeticCoding.decoder.ArithmeticDecoder;
-import arithmeticCoding.encoder.ArithmeticEncoder;
 import arithmeticCoding.tables.CheckedFrequencyTable;
 
 import java.io.IOException;

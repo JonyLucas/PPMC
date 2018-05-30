@@ -8,17 +8,17 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         int context;
-        String inputFileEncoder, outputFileEncoder, outputFileDecoder;
+        String inputFileEncoder = "src/examples/", outputFileEncoder = "src/resultsEncoder/", outputFileDecoder = "src/resultsDecoder/";
         Scanner scan = new Scanner(System.in);
 
         System.out.println("Digite o caminho do arquivo de entrada do codificador: ");
-        inputFileEncoder = scan.nextLine();
+        inputFileEncoder += scan.nextLine();
 
         System.out.println("Digite o caminho do arquivo de saida do codificador: ");
-        outputFileEncoder = scan.nextLine();
+        outputFileEncoder += scan.nextLine();
 
         System.out.println("Digite o caminho do arquivo de saida do decodificador: ");
-        outputFileDecoder = scan.nextLine();
+        outputFileDecoder += scan.nextLine();
 
         System.out.println("Digite o tamanho do contexto do PPM: ");
         context = scan.nextInt();

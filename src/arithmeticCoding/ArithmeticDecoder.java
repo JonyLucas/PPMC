@@ -1,4 +1,4 @@
-package arithmeticCoding.decoder;/*
+package arithmeticCoding;/*
  * Reference arithmetic coding
  * Copyright (c) Project Nayuki
  * 
@@ -6,8 +6,6 @@ package arithmeticCoding.decoder;/*
  * https://github.com/nayuki/Reference-arithmetic-coding
  */
 
-import arithmeticCoding.ArithmeticCoderBase;
-import arithmeticCoding.encoder.ArithmeticEncoder;
 import arithmeticCoding.tables.CheckedFrequencyTable;
 import arithmeticCoding.tables.FrequencyTable;
 import infra.BitInputStream;

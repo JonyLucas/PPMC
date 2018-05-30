@@ -1,6 +1,6 @@
 package ppm.encoder;
 
-import arithmeticCoding.encoder.ArithmeticEncoder;
+import arithmeticCoding.ArithmeticEncoder;
 import infra.BitOutputStream;
 import ppm.encoder.model.PPMTree;
 
@@ -29,7 +29,8 @@ public class PPMEncoder {
      */
     public void readAndCodify() throws Exception {
 
-        writeReader(context, getFileSize(inputFile));
+        int fileSize = getFileSize(inputFile);
+        writeReader(context, fileSize);
         PPMTree tree = new PPMTree(encoder, context);
 
         try (DataInputStream in = new DataInputStream( new FileInputStream(inputFile) )) {
@@ -39,11 +40,11 @@ public class PPMEncoder {
                 subString[i] = -1;
             }
 
-            int currentSymbol = in.read();
-            while (currentSymbol != -1) {
+            for (int i = 0 ; i < fileSize; i++) {
+                int currentSymbol = in.readUnsignedByte();
+                System.out.println(currentSymbol);
                 subString = addAndShift(subString, currentSymbol);
                 tree.findByContext(subString);
-                currentSymbol = in.read();
             }
 
             encoder.finish();
@@ -53,7 +54,8 @@ public class PPMEncoder {
         } catch (FileNotFoundException e) {
             throw new Exception("Erro: Arquivo não encontrado!");
         } catch (Exception e){
-            throw new Exception("Erro: " + e.getMessage());
+            e.printStackTrace();
+//            throw new Exception("Erro: " + e.getMessage());
         }
     }
 
@@ -74,8 +76,6 @@ public class PPMEncoder {
                 fileSize++;
                 currentSymbol = in.read();
             }
-
-            System.out.println(fileSize);
 
             return fileSize;
 

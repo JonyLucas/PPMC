@@ -1,6 +1,6 @@
 package ppm.encoder.model;
 
-import arithmeticCoding.encoder.ArithmeticEncoder;
+import arithmeticCoding.ArithmeticEncoder;
 import arithmeticCoding.tables.SimpleFrequencyTable;
 
 import java.io.IOException;
@@ -140,7 +140,7 @@ public class PPMTree {
      * @return
      */
     private void remainingSymbols(PPMNode currentNode, int symbol) throws IOException {
-        int i = 0, total = 0, numChildren = currentNode.getChildren().size();
+        int i = 0, numChildren = currentNode.getChildren().size();
         int frequencies[] = new int[numChildren+1]; // Inclui as frequências dos símbolos dos nós filhos e do rô (numChildren)
         String tableDescription = "";
 
@@ -154,7 +154,6 @@ public class PPMTree {
 
         for (PPMNode child : currentNode.getChildren()){
             tableDescription += i + ": " + child.getSymbol() + ", ";
-            total += child.getFrequency();
             frequencies[i++] = child.getFrequency();
         }
 

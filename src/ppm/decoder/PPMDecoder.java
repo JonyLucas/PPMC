@@ -1,8 +1,7 @@
 package ppm.decoder;
 
-import arithmeticCoding.decoder.ArithmeticDecoder;
+import arithmeticCoding.ArithmeticDecoder;
 import infra.BitInputStream;
-import infra.BitOutputStream;
 import ppm.decoder.model.PPMTree;
 
 import java.io.*;
@@ -27,11 +26,13 @@ public class PPMDecoder {
     public void readAndDecode() throws IOException {
 
         try {
-            PPMTree tree = new PPMTree(decoder, context);
+            PPMTree tree = new PPMTree(decoder, out, context);
 
             for (int i = 0; i <= fileSize; i++){
-
+                tree.searchAndDecode();
             }
+
+            tree.showTree();
 
         }catch (Exception e){
 
