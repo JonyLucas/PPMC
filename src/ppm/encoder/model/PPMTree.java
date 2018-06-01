@@ -20,8 +20,8 @@ public class PPMTree {
         this.root = new PPMNode();
         this.encoder = encoder;
 
-        equivalentProbabilitySymbols = new int[256];
-        for (int i = 0; i < 256; i++)
+        equivalentProbabilitySymbols = new int[257];
+        for (int i = 0; i < 257; i++)
             equivalentProbabilitySymbols[i] = i;
 
     }
@@ -202,6 +202,11 @@ public class PPMTree {
 
         this.equivalentProbabilitySymbols = remainingSymbols;
 
+    }
+
+    public void includeEOF() throws IOException {
+        PPMNode currentNode = this.root;
+        remainingSymbols(currentNode, 256);
     }
 
     /**

@@ -40,8 +40,8 @@ public class PPMTree {
         Arrays.fill(subString, -1);
         lowerMessage = subString.clone();
 
-        equivalentProbabilitySymbols = new int[256];
-        for (int i = 0; i < 256; i++)
+        equivalentProbabilitySymbols = new int[257];
+        for (int i = 0; i < 257; i++)
             equivalentProbabilitySymbols[i] = i;
 
     }

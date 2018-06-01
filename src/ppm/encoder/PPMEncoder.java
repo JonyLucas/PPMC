@@ -46,9 +46,11 @@ public class PPMEncoder {
                 tree.findByContext(subString);
             }
 
+            tree.showTree();
+            subString = addAndShift(subString, 256);
+            tree.findByContext(subString);
             encoder.finish();
             out.close();
-            tree.showTree();
 
         } catch (FileNotFoundException e) {
             throw new Exception("Erro: Arquivo não encontrado!");
