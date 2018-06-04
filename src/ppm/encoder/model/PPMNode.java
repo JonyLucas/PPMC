@@ -31,6 +31,29 @@ public class PPMNode {
         children.add(new PPMNode(symbol));
     }
 
+    public int[] returnChildrenSymbols(){
+        int size = children.size();
+        int[] symbols = new int[size];
+
+        for (int i = 0; i < size; i++){
+            symbols[i] = children.get(i).getSymbol();
+        }
+
+        return symbols;
+    }
+
+    public int[] returnChildrenFrequencies(){
+        int size = children.size();
+        int[] frequencies = new int[size];
+
+        for (int i = 0; i < size; i++){
+            frequencies[i] = children.get(i).getFrequency();
+        }
+
+        return frequencies;
+    }
+
+
     /**
      * Realiza a busca (em largura) do filho do nó corrente que possua o símbolo correspondente
      * ao símbolo passado como argumento.

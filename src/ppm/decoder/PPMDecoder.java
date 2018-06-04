@@ -32,7 +32,12 @@ public class PPMDecoder {
                 tree.searchAndDecode();
             }
 
+            out.flush();
+            out.close();
+
             tree.showTree();
+
+            in.close();
 
         }catch (Exception e){
 

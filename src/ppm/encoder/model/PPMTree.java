@@ -33,12 +33,13 @@ public class PPMTree {
      * A ideia é iniciar a pesquisa pelo maior contexto, caso exista determinado símbolo no contexto da busca, incrementa
      * o seu número de frequência, caso contrário, cria este símbolo neste contexto, iniciando sua frequência com 1.
      * Após a realização desta busca, descrementa o comprimento da string e repete a busca no contexto N-1.
+     *
      * @param contextMessage
      */
     public void findByContext(int[] contextMessage) throws IOException {
         int msgSize = contextMessage.length; // O comprimento da mensagem.
 
-        for(int i = 0; i < msgSize; i++){
+        for (int i = 0; i < msgSize; i++) {
             searchAndAdd(contextMessage);
             contextMessage = decrementMessage(contextMessage);
         }
@@ -61,26 +62,26 @@ public class PPMTree {
         PPMNode searchNode = this.root; // Inicia a busca pela raiz.
         PPMNode auxNode; // Nó auxiliar para realizar a verificação se o nó atual possui um nó filho com determinado símbolo
 
-        while (searchLevel < maxLevel){
+        while (searchLevel < maxLevel) {
             if (symbols[searchLevel] == -1)
                 break;
 
             auxNode = searchNode.findChild(symbols[searchLevel]);
-            if(auxNode != null){
+            if (auxNode != null) {
                 /**
                  * Caso o símbolo encontrado esteja no final da string e foi encontrado na árvore
                  * (o que indica que ele já foi encontrado antes dentro deste contexto),
                  * então incrementa a sua frequência.
                  **/
-                if (searchLevel == maxLevel-1){
+                if (searchLevel == maxLevel - 1) {
                     calculateInterval(searchNode, symbols[searchLevel]);
                     System.out.println("Increment Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol());
                     searchNode = auxNode;
                     searchNode.incrementFrequency();
-                }else {
+                } else {
                     searchNode = auxNode;
                 }
-            }else{
+            } else {
                 remainingSymbols(searchNode, symbols[searchLevel]);
                 System.out.println("Add Symbol: " + symbols[searchLevel] + " in context: " + searchNode.getSymbol() + "\n");
                 searchNode.addChild(symbols[searchLevel]);
@@ -105,20 +106,20 @@ public class PPMTree {
     private void calculateInterval(PPMNode currentNode, int symbol) throws IOException {
         int i = 0, index = 0;
         int numChildren = currentNode.getChildren().size();
-        int [] frequencies = (numChildren == 256) ? new int[numChildren] : new int [numChildren+1];
+        int[] frequencies = (numChildren == 256) ? new int[numChildren] : new int[numChildren + 1];
         String tableDescription = "";
 
         System.out.println("Current context: " + currentNode.getSymbol());
-        for (PPMNode child : currentNode.getChildren()){
+        for (PPMNode child : currentNode.getChildren()) {
 
-            if(child.getSymbol() == symbol)
+            if (child.getSymbol() == symbol)
                 index = i;
 
             tableDescription += i + ": " + child.getSymbol() + ", ";
             frequencies[i++] = child.getFrequency();
         }
 
-        if(numChildren != 256) { // Indica que o nó atual não possui todos os símbolos possíveis dentro do seu contexto (há a existência do rô)
+        if (numChildren != 256) { // Indica que o nó atual não possui todos os símbolos possíveis dentro do seu contexto (há a existência do rô)
             tableDescription += i + ": " + "Ro";
             frequencies[i] = numChildren;
         }
@@ -141,18 +142,23 @@ public class PPMTree {
      */
     private void remainingSymbols(PPMNode currentNode, int symbol) throws IOException {
         int i = 0, numChildren = currentNode.getChildren().size();
-        int frequencies[] = new int[numChildren+1]; // Inclui as frequências dos símbolos dos nós filhos e do rô (numChildren)
+        int frequencies[] = new int[numChildren + 1]; // Inclui as frequências dos símbolos dos nós filhos e do rô (numChildren)
         String tableDescription = "";
 
         System.out.println("Current context: " + currentNode.getSymbol());
 
-        if (numChildren == 0){ // Em caso do contexto atual não possuir símbolos, não computa o intervalo no codificador aritmético
-            if(currentNode.equals(this.root))
+        if (currentNode.equals(this.root) && symbol == 256) {
+            includeEOF();
+            return;
+        }
+
+        if (numChildren == 0) { // Em caso do contexto atual não possuir símbolos, não computa o intervalo no codificador aritmético
+            if (currentNode.equals(this.root))
                 findEquiProbContext(symbol); // No caso do nó atual ser a raiz, faz-se a busca do símbolo no contexto de equiprobabilidade (K = -1)
             return;
         }
 
-        for (PPMNode child : currentNode.getChildren()){
+        for (PPMNode child : currentNode.getChildren()) {
             tableDescription += i + ": " + child.getSymbol() + ", ";
             frequencies[i++] = child.getFrequency();
         }
@@ -166,7 +172,7 @@ public class PPMTree {
         System.out.println(frequencyTable);
         encoder.write(frequencyTable, i); // Escreve o intervalo do rô (P), por meio codificador aritmético, no arquivo
 
-        if(currentNode.equals(this.root))
+        if (currentNode.equals(this.root))
             findEquiProbContext(symbol); // No caso do nó atual ser a raiz, faz-se a busca do símbolo no contexto de equiprobabilidade (K = -1)
 
 
@@ -177,18 +183,19 @@ public class PPMTree {
      * Após a busca do símbolo neste contexto, escreve o intervalo correspondente à probabilidade
      * deste símbolo (por meio do codificador aritmético) e, em seguida, é realizado decremento dos
      * símbolos neste contexto, eliminando este símbolo lido.
+     *
      * @param symbol
      * @throws IOException
      */
     private void findEquiProbContext(int symbol) throws IOException {
         int j = 0, index = 0, size = equivalentProbabilitySymbols.length;
-        int [] frequencies = new int[size], remainingSymbols = new int[size-1];
+        int[] frequencies = new int[size], remainingSymbols = new int[size - 1];
 
         System.out.println("Equivalent probable context (K = -1)");
-        for (int i  = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             frequencies[i] = 1; // No contexto -1, todos os símbolos tem frequência 1
 
-            if (equivalentProbabilitySymbols[i] == symbol){ // Armazena o índice do símbolo que está sendo codificado
+            if (equivalentProbabilitySymbols[i] == symbol) { // Armazena o índice do símbolo que está sendo codificado
                 index = i;
                 continue;
             }
@@ -205,29 +212,39 @@ public class PPMTree {
     }
 
     public void includeEOF() throws IOException {
-        PPMNode currentNode = this.root;
-        remainingSymbols(currentNode, 256);
+        int[] frequencies = new int[257];
+        PPMNode auxNode;
+
+        for (int i = 0; i < 256; i++) {
+            auxNode = root.findChild(i);
+            frequencies[i] = (auxNode == null) ? 0 : auxNode.getFrequency();
+        }
+
+        frequencies[256] = 1;
+        encoder.write(new SimpleFrequencyTable(frequencies), 256);
+
     }
 
     /**
      * Cria uma sub-mensagem da mensagem passada como argumento, com comprimento reduzido em um elemento:
      * Comprimento(novaMsg) = Comprimento(msgOriginal) - 1.
      * E eliminando o primeiro caractere da mensagem original.
+     *
      * @param message
      * @return
      */
-    private int[] decrementMessage(int[] message){
+    private int[] decrementMessage(int[] message) {
         int newSize = message.length - 1;
         int[] newMessage = new int[newSize]; //Cria um array com o comprimento (n) da mensagem inicial - 1
 
-        for (int i = 0; i < newSize; i++){
-            newMessage[i] = message[i+1];
+        for (int i = 0; i < newSize; i++) {
+            newMessage[i] = message[i + 1];
         }
 
         return newMessage;
     }
 
-    public void showTree(){
+    public void showTree() {
         System.out.println(root.printNode(-1));
     }
 
